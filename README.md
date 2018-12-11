@@ -29,10 +29,11 @@ Getting Started
         tsc --init
         touch ts_practice.ts
         ```
-    * #### Clone from git
+    * #### Or, clone from git
         ```
         git clone https://github.com/rdhelms/typescript-reference.git
         ```
+* ### [Example TypeScript Tinkering](https://github.com/rdhelms/typescript-reference/blob/master/ts_intro.ts)
 * ### Compile
     ```
     tsc
