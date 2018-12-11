@@ -1,29 +1,3 @@
-/********************************************
-
-    TypeScript Intro
-
-    Handbook:
-    https://www.typescriptlang.org/docs/handbook/basic-types.html
-
-    TypeScript Release Updates:
-    https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-1.html
-
-********************************************/
-
-/********************************************
-
-    Getting Started
-
-    npm i -g typescript
-    mkdir ts-demo
-    cd ts-demo
-    tsc --init
-    touch ts_practice.ts
-    // Write TypeScript...then compile:
-    tsc
-
-********************************************/
-
 /********************************************/
 // BASIC TYPES
 
