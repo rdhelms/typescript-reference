@@ -479,6 +479,12 @@ function unionExample (aOrB: IExampleA | IExampleB) {
 // types can be declared explicitly, for later reference
 type TSomething = number | string | {propA: string};
 const something: TSomething = 5;
+
+// type aliases can often be used instead of interfaces -- also see MAPPED TYPES
+type TObject = {
+    someKeyName: string;
+    [key: string]: boolean | string;
+}
 /********************************************/
 
 /********************************************/
@@ -547,12 +553,152 @@ function addToArr<T, U extends T[]>(newItem: T, arr: U) {
 addToArr(5, [1, 2]);
 /********************************************/
 
+/********************************************/
+// INDEX TYPES
+
+// keyof, aka the "index type query operator", returns a union type of an interface's property name strings
+type TIndexable = {
+    propA: string;
+    propB: number;
+    propC: boolean;
+}
+type TKeys = keyof TIndexable;  // "propA" | "propB" | "propC"
+
+// keyof will also give you numerical indices and method names
+type TArrayKeys = keyof ['hello'];  //number | "0" | "length" | "pop" | "push" | ...etc...
+
+// T[K], aka the "indexed access operator" can give you the type of a given property
+type TPropType = TIndexable['propA'];   // string
+
+// When combined, you can get a union of ALL of an object's property types
+type TPropTypesAll = TIndexable[keyof TIndexable];  // string | number | boolean
+/********************************************/
+
+/********************************************/
+// DISCRIMINATED UNIONS
+
+// A union of interfaces can be used for an object with multiple possible structures
+interface IPossibilityA {
+    label: 'a';
+    propA: string;
+    extraA: string;
+}
+interface IPossibilityB {
+    label: 'b';
+    propB: boolean;
+    extraB: boolean;
+}
+interface IPossibilityC {
+    label: 'c';
+    propC: number;
+    extraC: number;
+}
+type TCombo = IPossibilityA | IPossibilityB | IPossibilityC;
+
+// The "discriminant" of two or more interfaces is the set of common properties
+type TComboKeys = keyof TCombo; // 'label'
+
+// ONLY the discriminant properties are guaranteed to exist
+function comboTest(param: TCombo) {
+    param.label;        // this is fine
+    // param.propB;     // but this would error
+    // param.extraB;    // also an error
+}
+
+// After type narrowing to one interface, TypeScript will assume all the interface's props exist
+function comboNarrow(param: TCombo) {
+    if ('propB' in param) {
+        param.propB     // Fine now
+        param.extraB    // Also fine! Even though we didn't check for it, it's inferred with propB
+    }
+}
+/********************************************/
+
+/********************************************/
+// MAPPED TYPES
+
+// Type aliases can define types for specific property names
+type TKeyNames = 'propA' | 'propB' | 'propC';
+type TKeyMap = {
+    [key in TKeyNames]: boolean;
+}
+
+// Using keyof can help create types that are modifications of another type
+type TUser = {
+    username: string;
+    password: string;
+}
+type TPartialUser = {
+    [key in keyof TUser]?: TUser[key];
+}
+type TReadOnlyUser = {
+    readonly [key in keyof TUser]: TUser[key];
+}
+
+// Using in conjunction with generic types make these even more powerful
+type TPartial<T> = {
+    [key in keyof T]?: T[key];
+}
+type TPartialUserGen = TPartial<TUser>;
+
+// Some mapped types are useful enough that TypeScript made them built-in types - see PREDEFINED / BUILT-IN TYPES
+type TPartialUserBuiltIn = Partial<TUser>;
+type TReadOnlyUserBuildIn = Readonly<TUser>;
+type TUsername = Pick<TUser, 'username'>; 
+type TUserWithRecord = Record<'username' | 'password', string>
+/********************************************/
+
+/********************************************/
+// CONDITIONAL TYPES
+
+// This conditional type says: If 0 is assignable to number (which it is), TConditional1 is 'string', otherwise it's 'boolean'.
+type TConditional1 = 0 extends number ? string : boolean;
+
+// This conditional type says: If 0 is assignable to string (which it is NOT), TCondtional2 is 'string', otherwise it's 'boolean'.
+type TConditional2 = 0 extends string ? string : boolean;
+
+// More helpful than the above (which really don't need to be conditional) is combining Conditional and Generic types
+type TConditional3<T> = T extends number ? string[] : boolean[];
+type TStringArr = TConditional3<5>; // string[]
+type TBoolArr = TConditional3<number[]> // boolean[]
+
+// Conditional Types can be used to filter union types (each type in the union is checked, and 'never' will remove the type from the union)
+type TFilter<T> = T extends number | string ? T : never;
+type TFilterTest1 = TFilter<5 | 'a' | boolean | any[]>;
+
+// Conditional Types can be used with Mapped Types to do crazy things
+type TSimpleObj = {
+    propA: string;
+    propB: number;
+    propC: boolean;
+}
+type TCrazyMap<T> = {
+    [key in keyof T]: 
+        key extends 'propA' ? T[key][] :
+        T[key] extends boolean ? boolean[] :
+        key | T[key] | null;
+}
+type TSimplyCrazy = TCrazyMap<TSimpleObj>;
+
+// Use "infer" to define a type variable dynamically based on the type being tested
+type TInfer<T> = T extends infer R ? R : never;
+type TInferred = TInfer<string>;
+
+// The structure and location of the "infer" statement will determine what type is inferred
+type TInferReturnType<T> = T extends () => infer R ? R : never;
+type TInferredReturn = TInferReturnType<() => string>;
+
+// TypeScript includes several conditional types as built-in types - see PREDEFINED / BUILT-IN TYPES
+type TExcludeExample = Exclude<'a' | 4 | true, string>;
+type TExtractExample = Extract<'a' | 4 | true, string>;
+type TNonNullableExample = NonNullable<string | null | undefined>;
+type TReturnTypeExample = ReturnType<() => (() => string)>;
+class SomeClass {}
+type TClassType = typeof SomeClass; // Use typeof to get the Static Class type
+type TInstanceTypeExample = InstanceType<TClassType>; // Use InstanceType to get back to the instance type
+/********************************************/
 
 /**FUTURE SECTIONS***************************/
-// DISCRIMINATED UNIONS
-// INDEX TYPES
-// MAPPED TYPES
-// CONDITIONAL TYPES
 // PREDEFINED / BUILT-IN TYPES
 // PROJECT CONFIGURATION
 // TSLINT
