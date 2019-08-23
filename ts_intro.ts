@@ -565,7 +565,7 @@ type TIndexable = {
 type TKeys = keyof TIndexable;  // "propA" | "propB" | "propC"
 
 // keyof will also give you numerical indices and method names
-type TArrayKeys = keyof ['hello'];  //number | "0" | "length" | "pop" | "push" | ...etc...
+type TArrayKeys = keyof ['hello'];  // number | "0" | "length" | "pop" | "push" | ...etc...
 
 // T[K], aka the "indexed access operator" can give you the type of a given property
 type TPropType = TIndexable['propA'];   // string
@@ -674,9 +674,11 @@ type TSimpleObj = {
 }
 type TCrazyMap<T> = {
     [key in keyof T]: 
-        key extends 'propA' ? T[key][] :
-        T[key] extends boolean ? boolean[] :
-        key | T[key] | null;
+        key extends 'propA'
+            ? T[key][]
+            : T[key] extends boolean
+                ? boolean[]
+                : key | T[key] | null;
 }
 type TSimplyCrazy = TCrazyMap<TSimpleObj>;
 
