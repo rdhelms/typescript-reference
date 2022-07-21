@@ -1,6 +1,10 @@
 /********************************************/
 // BASIC TYPES
 
+function thingFunc (): never {
+    throw 'blah'
+}
+
 // boolean
 const boolThing: boolean = true;
 
@@ -445,7 +449,7 @@ interface ISomething extends Something {}
 // INTERSECTION TYPES
 
 // intersection types let you treat variables like multiple types at the same time
-function intersectionExample1 (stringAndNumber: string & number) {
+function intersectionExample1 (stringAndNumber: String & Number) {
     stringAndNumber.search(/hello/);    // String method
     stringAndNumber.toFixed(2);         // Number method
 }
